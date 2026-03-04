@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoxDeploy — Deploy Cloud</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --primary: #ff6b00;
+            --primary-glow: rgba(255, 107, 0, 0.4);
+            --bg: #050505;
+            --card-bg: rgba(15, 15, 15, 0.8);
+            --border: rgba(255, 255, 255, 0.08);
+            --text-muted: #888;
+        }
+
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        /* Banner Atas (Persegi Panjang) */
+        .header-video {
+            width: 100%;
+            height: 160px;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 2px solid var(--primary);
+            box-shadow: 0 0 30px rgba(255, 107, 0, 0.2);
+        }
+
+        .header-video video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.8);
+        }
+
+        .video-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, transparent, var(--bg));
+        }
+
+        /* Main Container: Centered Layout */
+        .wrapper {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding: 40px 20px;
+        }
+
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--border);
+            border-radius: 32px;
+            width: 100%;
+            max-width: 450px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.7);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Branding */
+        .brand-section {
+            margin-bottom: 35px;
+        }
+
+        .brand-icon {
+            background: var(--primary);
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            box-shadow: 0 0 25px var(--primary-glow);
+        }
+
+        .brand-section h1 {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: white;
+        }
+
+        .brand-section p {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        /* Input Styles */
+        .form-group {
+            margin-bottom: 22px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            margin-left: 4px;
+        }
+
+        .input-wrapper {
+            width: 100%;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: 0.3s;
+        }
+
+        .input-wrapper i { color: var(--primary); }
+
+        .input-wrapper input {
+            background: none; border: none; color: white; width: 100%; outline: none;
+            font-size: 15px;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: var(--primary);
+            background: rgba(255, 107, 0, 0.05);
+            box-shadow: 0 0 0 4px rgba(255, 107, 0, 0.1);
+        }
+
+        /* Button Deploy */
+        .btn-deploy {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary);
+            border: none;
+            border-radius: 14px;
+            color: #fff;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin-top: 10px;
+        }
+
+        .btn-deploy:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px var(--primary-glow);
+        }
+
+        /* Animasi Loading Kece */
+        #loader-view {
+            display: none;
+            padding: 20px 0;
+        }
+
+        .pulse-ring {
+            width: 65px; height: 65px;
+            background: var(--primary);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            animation: pulse-animation 1.5s infinite;
+        }
+
+        @keyframes pulse-animation {
+            0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(255, 107, 0, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(255, 107, 0, 0); }
+            100% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(255, 107, 0, 0); }
+        }
+
+        /* Notifikasi Berhasil */
+        #success-view {
+            display: none;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        .success-icon {
+            color: #4ade80;
+            margin-bottom: 15px;
+        }
+
+        .link-result {
+            background: #000;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+        }
+
+        .link-result span {
+            color: #4ade80;
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .copy-btn {
+            color: var(--primary);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .copy-btn:hover { transform: scale(1.2); color: white; }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        footer {
+            padding: 20px;
+            font-size: 12px;
+            color: #444;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-video">
+        <video autoplay muted loop playsinline>
+            <source src="https://image2url.com/r2/default/videos/1772629905061-ec714879-807f-42ab-a080-ceecff25bf94.mp4" type="video/mp4">
+        </video>
+        <div class="video-overlay"></div>
+    </div>
+
+    <div class="wrapper">
+        <div class="glass-card">
+            
+            <div id="main-form">
+                <div class="brand-section">
+                    <div class="brand-icon"><i data-lucide="zap" color="white" size="30"></i></div>
+                    <h1>FoxDeploy</h1>
+                    <p>Deploy modern websites in seconds</p>
+                </div>
+
+                <div class="form-group">
+                    <label>Project Alias</label>
+                    <div class="input-wrapper">
+                        <i data-lucide="edit-3" size="18"></i>
+                        <input type="text" id="projectName" placeholder="my-cool-site">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Resource File</label>
+                    <div class="input-wrapper" style="cursor: pointer;" onclick="document.getElementById('fileInput').click()">
+                        <i data-lucide="file-code" size="18"></i>
+                        <span id="fileLabel" style="color: #666; font-size: 14px;">Select ZIP or HTML...</span>
+                        <input type="file" id="fileInput" style="display:none" onchange="handleFileChange(this)">
+                    </div>
+                </div>
+
+                <button class="btn-deploy" onclick="processDeploy()">
+                    <i data-lucide="rocket" size="19"></i> Launch Project
+                </button>
+            </div>
+
+            <div id="loader-view">
+                <div class="pulse-ring"></div>
+                <h2 style="font-size: 18px; margin-bottom: 8px;">Processing Build</h2>
+                <p style="color: var(--text-muted); font-size: 14px;">Synchronizing with Vercel edge network...</p>
+            </div>
+
+            <div id="success-view">
+                <div class="success-icon"><i data-lucide="check-circle-2" size="60"></i></div>
+                <h2 style="font-size: 24px;">Deploy Success!</h2>
+                <p style="color: var(--text-muted); font-size: 14px; margin-top: 5px;">Your site is now live globally.</p>
+                
+                <div class="link-result">
+                    <span id="finalUrl">project-xyz.vercel.app</span>
+                    <i data-lucide="copy" class="copy-btn" size="18" onclick="copyToClipboard()"></i>
+                </div>
+
+                <button class="btn-deploy" style="background: transparent; border: 1px solid var(--border);" onclick="goToWeb()">
+                    <i data-lucide="external-link" size="18"></i> Open Website
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <footer>
+        FoxDeploy v2.0 &copy; 2026 Cloud Service
+    </footer>
+
+    <script>
+        // Init Icons
+        lucide.createIcons();
+
+        // Handle file name display
+        function handleFileChange(input) {
+            const fileName = input.files[0] ? input.files[0].name : "Select ZIP or HTML...";
+            const label = document.getElementById('fileLabel');
+            label.innerText = fileName;
+            label.style.color = input.files[0] ? "#fff" : "#666";
+        }
+
+        // Logic Deploy
+        function processDeploy() {
+            const name = document.getElementById('projectName').value;
+            const file = document.getElementById('fileInput').files[0];
+
+            if(!name || !file) {
+                alert("Harap lengkapi nama project dan file!");
+                return;
+            }
+
+            // UI Transition
+            document.getElementById('main-form').style.display = 'none';
+            document.getElementById('loader-view').style.display = 'block';
+
+            // Simulate API Process
+            setTimeout(() => {
+                const slug = name.toLowerCase().replace(/\s+/g, '-');
+                document.getElementById('loader-view').style.display = 'none';
+                document.getElementById('success-view').style.display = 'block';
+                document.getElementById('finalUrl').innerText = `${slug}.vercel.app`;
+            }, 3500);
+        }
+
+        function copyToClipboard() {
+            const url = document.getElementById('finalUrl').innerText;
+            navigator.clipboard.writeText("https://" + url);
+            alert("Link berhasil disalin!");
+        }
+
+        function goToWeb() {
+            const url = document.getElementById('finalUrl').innerText;
+            window.open("https://" + url, "_blank");
+        }
+    </script>
+</body>
+</html>

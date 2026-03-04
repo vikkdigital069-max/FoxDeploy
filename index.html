@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoxDeploy — Cloud Deployment</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --primary: #ff6b00;
+            --primary-glow: rgba(255, 107, 0, 0.4);
+            --bg: #050505;
+            --card-bg: rgba(15, 15, 15, 0.9);
+            --border: rgba(255, 255, 255, 0.1);
+            --text-muted: #888;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg); color: #fff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; }
+
+        .header-video { width: 100%; height: 180px; position: relative; overflow: hidden; border-bottom: 2px solid var(--primary); box-shadow: 0 5px 30px var(--primary-glow); }
+        .header-video video { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.8); }
+        .video-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, transparent, var(--bg)); }
+
+        .wrapper { flex: 1; display: flex; justify-content: center; align-items: center; width: 100%; padding: 40px 20px; }
+        .deploy-card { background: var(--card-bg); backdrop-filter: blur(30px); border: 1px solid var(--border); border-radius: 32px; width: 100%; max-width: 480px; padding: 45px; text-align: center; box-shadow: 0 40px 100px rgba(0,0,0,0.8); }
+
+        .brand-section { margin-bottom: 40px; }
+        .brand-icon { background: var(--primary); width: 64px; height: 64px; border-radius: 18px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; box-shadow: 0 0 30px var(--primary-glow); }
+        
+        .form-group { margin-bottom: 25px; text-align: left; }
+        .form-group label { display: block; font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1.5px; }
+        .input-field { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; }
+        .input-field input { background: none; border: none; color: white; width: 100%; outline: none; font-size: 15px; }
+
+        .btn-deploy { width: 100%; padding: 18px; background: var(--primary); border: none; border-radius: 14px; color: #fff; font-weight: 700; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; transition: 0.4s; }
+        .btn-deploy:hover { transform: translateY(-3px); box-shadow: 0 15px 30px var(--primary-glow); }
+
+        #loading-view, #success-view { display: none; }
+        .pulse { width: 70px; height: 70px; background: var(--primary); border-radius: 50%; margin: 0 auto 20px; animation: pulse-ring 1.5s infinite; }
+        @keyframes pulse-ring { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 107, 0, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(255, 107, 0, 0); } 100% { transform: scale(0.95); } }
+        
+        .url-box { background: #000; border: 1px solid #333; border-radius: 12px; padding: 14px; display: flex; justify-content: space-between; align-items: center; margin: 25px 0; }
+        .url-box span { color: #4ade80; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <div class="header-video">
+        <video autoplay muted loop playsinline>
+            <source src="https://image2url.com/r2/default/videos/1772629905061-ec714879-807f-42ab-a080-ceecff25bf94.mp4" type="video/mp4">
+        </video>
+        <div class="video-overlay"></div>
+    </div>
+
+    <div class="wrapper">
+        <div class="deploy-card">
+            <div id="form-view">
+                <div class="brand-section">
+                    <div class="brand-icon"><i data-lucide="layout-template" color="white" size="32"></i></div>
+                    <h1>FoxDeploy</h1>
+                    <p>Professional Deployment Tool</p>
+                </div>
+                <div class="form-group">
+                    <label>Project Name</label>
+                    <div class="input-field"><i data-lucide="type" size="18"></i><input type="text" id="projName" placeholder="my-web-app"></div>
+                </div>
+                <div class="form-group">
+                    <label>Source File (HTML/ZIP)</label>
+                    <div class="input-field" onclick="document.getElementById('fileInp').click()" style="cursor:pointer">
+                        <i data-lucide="file-up" size="18"></i>
+                        <span id="fileName" style="color:#666; font-size:14px">Pilih file...</span>
+                        <input type="file" id="fileInp" style="display:none" onchange="document.getElementById('fileName').innerText=this.files[0].name">
+                    </div>
+                </div>
+                <button class="btn-deploy" onclick="initiateDeploy()">Deploy Now</button>
+            </div>
+
+            <div id="loading-view">
+                <div class="pulse"></div>
+                <h2>Synchronizing...</h2>
+                <p>Pushing files to Vercel Global Edge.</p>
+            </div>
+
+            <div id="success-view">
+                <i data-lucide="shield-check" size="56" color="#4ade80"></i>
+                <h2>Deploy Successful!</h2>
+                <div class="url-box"><span id="resUrl"></span><i data-lucide="copy" style="cursor:pointer" onclick="copyLink()"></i></div>
+                <button class="btn-deploy" onclick="window.open('https://'+document.getElementById('resUrl').innerText)">Launch App</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        async function initiateDeploy() {
+            const name = document.getElementById('projName').value;
+            const file = document.getElementById('fileInp').files[0];
+            if (!name || !file) return alert("Isi data!");
+
+            document.getElementById('form-view').style.display = 'none';
+            document.getElementById('loading-view').style.display = 'block';
+
+            const reader = new FileReader();
+            reader.readAsText(file);
+            reader.onload = async (e) => {
+                try {
+                    const response = await fetch('/api/deploy', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name, files: [{ file: file.name, data: e.target.result }] })
+                    });
+                    const result = await response.json();
+                    if (result.url) {
+                        document.getElementById('loading-view').style.display = 'none';
+                        document.getElementById('success-view').style.display = 'block';
+                        document.getElementById('resUrl').innerText = result.url;
+                    } else { throw new Error(result.error || "Gagal"); }
+                } catch (err) { alert("Error: " + err.message); location.reload(); }
+            };
+        }
+    </script>
+</body>
+</html>

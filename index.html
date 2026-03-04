@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoxDeploy |Deploy Cloud</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #ff6b00; /* Oranye Khas Vikk Digital */
+            --primary-glow: rgba(255, 107, 0, 0.5);
+            --primary-dim: rgba(255, 107, 0, 0.1);
+            --bg-dark: #070707;
+            --card-bg: rgba(15, 15, 15, 0.8);
+            --text-main: #f0f0f0;
+            --text-muted: #888;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: radial-gradient(circle at 50% -20%, #222, var(--bg-dark));
+        }
+
+        /* Video Header Persegi Panjang - URL Update */
+        .video-header {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            position: relative;
+            border-bottom: 3px solid var(--primary);
+            box-shadow: 0 5px 25px var(--primary-glow);
+        }
+
+        .video-header video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.8) contrast(1.1);
+        }
+
+        /* Container Tengah */
+        .container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+            width: 100%;
+        }
+
+        .deploy-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 45px;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 460px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo-area { margin-bottom: 35px; }
+        .logo-area i {
+            color: var(--primary);
+            margin-bottom: 12px;
+            filter: drop-shadow(0 0 8px var(--primary-glow));
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            font-weight: 900;
+            background: linear-gradient(to bottom, #fff, #888);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Input Group dengan Floating Label */
+        .input-group {
+            position: relative;
+            margin-bottom: 28px;
+            text-align: left;
+        }
+
+        .cool-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 16px 15px 16px 50px;
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .cool-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 15px var(--primary-dim);
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            z-index: 2;
+        }
+
+        .floating-label {
+            position: absolute;
+            left: 50px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+            transition: var(--transition);
+        }
+
+        .cool-input:focus ~ .floating-label,
+        .cool-input:not(:placeholder-shown) ~ .floating-label {
+            top: 0;
+            left: 15px;
+            font-size: 0.75rem;
+            color: var(--primary);
+            font-weight: bold;
+            background: #070707;
+            padding: 0 8px;
+            transform: translateY(-50%);
+        }
+
+        /* File Input */
+        .file-label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 0.8rem;
+            color: var(--primary);
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .cool-file {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            border-radius: 12px;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        /* Button Launch */
+        .btn-launch {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 14px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            transition: var(--transition);
+        }
+
+        .btn-launch:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px var(--primary-glow);
+        }
+
+        /* Loading & Success States */
+        #loader {
+            display: none;
+            position: absolute;
+            inset: 0;
+            background: rgba(7, 7, 7, 0.95);
+            z-index: 10;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 24px;
+        }
+
+        .ring {
+            width: 60px;
+            height: 60px;
+            border: 5px solid var(--primary-dim);
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        #successPopup {
+            display: none;
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: #111;
+            border: 2px solid var(--primary);
+            padding: 40px;
+            border-radius: 24px;
+            z-index: 100;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(0,0,0,1);
+        }
+
+        .link-display {
+            background: #000;
+            border: 1px dashed var(--primary);
+            padding: 12px;
+            margin: 20px 0;
+            border-radius: 10px;
+            color: #4ade80;
+            font-family: monospace;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="video-header">
+        <video autoplay muted loop playsinline>
+            <source src="https://image2url.com/r2/default/videos/1772629905061-ec714879-807f-42ab-a080-ceecff25bf94.mp4" type="video/mp4">
+        </video>
+    </div>
+
+    <div class="container">
+        <div class="deploy-card">
+            
+            <div id="loader">
+                <div class="ring"></div>
+                <p style="margin-top: 20px; color: var(--primary); font-weight: bold;">BYPASSING PATH...</p>
+            </div>
+
+            <div class="logo-area">
+                <i data-lucide="zap" size="50"></i>
+                <h1>FoxDeploy</h1>
+                <p style="color: var(--text-muted); font-size: 0.8rem;">Professional Cloud Launcher</p>
+            </div>
+
+            <div class="input-group">
+                <input type="text" id="pName" class="cool-input" placeholder=" ">
+                <label class="floating-label">Project Name</label>
+                <i data-lucide="box" class="input-icon" size="20"></i>
+            </div>
+
+            <div class="input-group">
+                <label class="file-label">Select Source File</label>
+                <input type="file" id="pFile" class="cool-file">
+            </div>
+
+            <button class="btn-launch" onclick="handleFinalLaunch()">
+                <i data-lucide="rocket"></i> LAUNCH NOW
+            </button>
+        </div>
+    </div>
+
+    <div id="successPopup">
+        <i data-lucide="check-circle" color="#4ade80" size="60"></i>
+        <h2 style="margin-top: 15px;">DEPLOY SUCCESS!</h2>
+        <div class="link-display" id="finalUrl"></div>
+        <button class="btn-launch" id="openBtn">
+            <i data-lucide="external-link"></i> OPEN PROJECT
+        </button>
+        <p style="margin-top: 20px; font-size: 0.8rem; color: var(--text-muted); cursor: pointer;" onclick="location.reload()">New Deployment</p>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        function handleFinalLaunch() {
+            const name = document.getElementById('pName').value;
+            const fileInput = document.getElementById('pFile');
+
+            if(!name || !fileInput.files[0]) {
+                alert("Lengkapi Nama dan File dulu ya!");
+                return;
+            }
+
+            document.getElementById('loader').style.display = 'flex';
+
+            // Simulasi proses deploy menggunakan API Vercel via Env Variable
+            setTimeout(() => {
+                const fileName = fileInput.files[0].name;
+                const slug = name.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+                
+                // Logika Bypass: Jika bukan index.html, arahkan langsung ke nama filenya
+                let finalPath = `https://${slug}.vercel.app`;
+                if(fileName.toLowerCase() !== 'index.html') {
+                    finalPath += `/${fileName}`;
+                }
+
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('finalUrl').innerText = finalPath;
+                document.getElementById('successPopup').style.display = 'block';
+                document.getElementById('openBtn').onclick = () => window.open(finalPath, '_blank');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

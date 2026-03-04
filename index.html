@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoxDeploy — Cloud Deployment Professional</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --primary: #ff6b00;
+            --primary-glow: rgba(255, 107, 0, 0.4);
+            --bg: #050505;
+            --card-bg: rgba(15, 15, 15, 0.9);
+            --border: rgba(255, 255, 255, 0.1);
+            --text-muted: #888;
+        }
+
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        /* Banner Video Atas */
+        .header-video {
+            width: 100%;
+            height: 180px;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 2px solid var(--primary);
+            box-shadow: 0 5px 30px var(--primary-glow);
+        }
+
+        .header-video video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.8) contrast(1.1);
+        }
+
+        .video-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, transparent, var(--bg));
+        }
+
+        /* Main Container - Centered */
+        .wrapper {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding: 40px 20px;
+        }
+
+        .deploy-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid var(--border);
+            border-radius: 32px;
+            width: 100%;
+            max-width: 480px;
+            padding: 45px;
+            text-align: center;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.8);
+            position: relative;
+        }
+
+        .brand-section { margin-bottom: 40px; }
+
+        .brand-icon {
+            background: var(--primary);
+            width: 64px; height: 64px;
+            border-radius: 18px;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 15px;
+            box-shadow: 0 0 30px var(--primary-glow);
+        }
+
+        .brand-section h1 {
+            font-size: 28px; font-weight: 700; color: #fff;
+            letter-spacing: -1px;
+        }
+
+        /* Form Controls */
+        .form-group { margin-bottom: 25px; text-align: left; }
+
+        .form-group label {
+            display: block; font-size: 11px; font-weight: 700;
+            color: var(--text-muted); margin-bottom: 8px;
+            text-transform: uppercase; letter-spacing: 1.5px;
+        }
+
+        .input-field {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 14px 16px;
+            display: flex; align-items: center; gap: 12px;
+            transition: 0.3s;
+        }
+
+        .input-field i { color: var(--primary); }
+
+        .input-field input {
+            background: none; border: none; color: white;
+            width: 100%; outline: none; font-size: 15px;
+        }
+
+        .input-field:focus-within {
+            border-color: var(--primary);
+            background: rgba(255, 107, 0, 0.05);
+        }
+
+        /* Button */
+        .btn-deploy {
+            width: 100%; padding: 18px;
+            background: var(--primary); border: none;
+            border-radius: 14px; color: #fff;
+            font-weight: 700; font-size: 16px;
+            cursor: pointer; display: flex;
+            align-items: center; justify-content: center; gap: 12px;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .btn-deploy:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px var(--primary-glow);
+        }
+
+        /* Loading View */
+        #loading-view { display: none; padding: 20px 0; }
+
+        .pulse {
+            width: 70px; height: 70px;
+            background: var(--primary);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            animation: pulse-ring 1.5s infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 107, 0, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(255, 107, 0, 0); }
+            100% { transform: scale(0.95); }
+        }
+
+        /* Success View */
+        #success-view { display: none; animation: slideUp 0.6s ease-out; }
+
+        .success-icon { color: #4ade80; margin-bottom: 20px; }
+
+        .url-box {
+            background: #000; border: 1px solid #333;
+            border-radius: 12px; padding: 14px;
+            display: flex; justify-content: space-between;
+            align-items: center; margin: 25px 0;
+        }
+
+        .url-box span { color: #4ade80; font-family: monospace; font-size: 14px; }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        footer { padding: 30px; font-size: 10px; color: #333; letter-spacing: 2px; }
+    </style>
+</head>
+<body>
+
+    <div class="header-video">
+        <video autoplay muted loop playsinline>
+            <source src="https://image2url.com/r2/default/videos/1772629905061-ec714879-807f-42ab-a080-ceecff25bf94.mp4" type="video/mp4">
+        </video>
+        <div class="video-overlay"></div>
+    </div>
+
+    <div class="wrapper">
+        <div class="deploy-card">
+            
+            <div id="form-view">
+                <div class="brand-section">
+                    <div class="brand-icon"><i data-lucide="layout-template" color="white" size="32"></i></div>
+                    <h1>FoxDeploy</h1>
+                    <p>Production-Grade Deployment Tool</p>
+                </div>
+
+                <div class="form-group">
+                    <label>Project Name</label>
+                    <div class="input-field">
+                        <i data-lucide="type" size="18"></i>
+                        <input type="text" id="projName" placeholder="my-web-app">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Source Bundle (HTML/ZIP)</label>
+                    <div class="input-field" style="cursor: pointer;" onclick="document.getElementById('fileInp').click()">
+                        <i data-lucide="file-up" size="18"></i>
+                        <span id="fileName" style="color: #666; font-size: 14px;">Upload your source...</span>
+                        <input type="file" id="fileInp" style="display:none" onchange="updateFileLabel(this)">
+                    </div>
+                </div>
+
+                <button class="btn-deploy" onclick="initiateDeploy()">
+                    <i data-lucide="cloud-lightning" size="19"></i> Deploy Now
+                </button>
+            </div>
+
+            <div id="loading-view">
+                <div class="pulse"></div>
+                <h2 style="font-size: 18px; margin-bottom: 5px;">Synchronizing...</h2>
+                <p style="color: var(--text-muted); font-size: 13px;">Pushing files to Vercel Global Edge.</p>
+            </div>
+
+            <div id="success-view">
+                <div class="success-icon"><i data-lucide="shield-check" size="56"></i></div>
+                <h2 style="font-size: 22px;">Deploy Successful!</h2>
+                <div class="url-box">
+                    <span id="resUrl">project.vercel.app</span>
+                    <i data-lucide="copy" size="18" style="color:var(--primary); cursor:pointer" onclick="copyLink()"></i>
+                </div>
+                <button class="btn-deploy" style="background: transparent; border: 1px solid var(--border);" onclick="openApp()">
+                    <i data-lucide="external-link" size="18"></i> Launch App
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <footer>FOXDEPLOY ENGINE &copy; 2026</footer>
+
+    <script>
+        lucide.createIcons();
+
+        function updateFileLabel(input) {
+            const label = document.getElementById('fileName');
+            label.innerText = input.files[0] ? input.files[0].name : "Upload your source...";
+            label.style.color = input.files[0] ? "#fff" : "#666";
+        }
+
+        async function initiateDeploy() {
+            const name = document.getElementById('projName').value;
+            const file = document.getElementById('fileInp').files[0];
+
+            if (!name || !file) return alert("Harap lengkapi data!");
+
+            document.getElementById('form-view').style.display = 'none';
+            document.getElementById('loading-view').style.display = 'block';
+
+            // Membaca file sebagai teks (untuk HTML) atau Base64
+            const reader = new FileReader();
+            reader.readAsText(file);
+            reader.onload = async (e) => {
+                const content = e.target.result;
+
+                try {
+                    // MENGHUBUNGKAN KE SERVERLESS API (/api/deploy.js)
+                    const response = await fetch('/api/deploy', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            name: name,
+                            files: [{ file: file.name, data: content }]
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.url || result.status === 'success') {
+                        document.getElementById('loading-view').style.display = 'none';
+                        document.getElementById('success-view').style.display = 'block';
+                        document.getElementById('resUrl').innerText = result.url || (name + ".vercel.app");
+                    } else {
+                        throw new Error(result.error || "Gagal deploy");
+                    }
+                } catch (err) {
+                    alert("Error: " + err.message);
+                    location.reload();
+                }
+            };
+        }
+
+        function copyLink() {
+            const url = document.getElementById('resUrl').innerText;
+            navigator.clipboard.writeText("https://" + url);
+            alert("URL disalin!");
+        }
+
+        function openApp() {
+            const url = document.getElementById('resUrl').innerText;
+            window.open("https://" + url, "_blank");
+        }
+    </script>
+</body>
+</html>
